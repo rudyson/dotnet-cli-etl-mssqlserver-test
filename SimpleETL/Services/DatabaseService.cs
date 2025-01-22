@@ -4,21 +4,16 @@ using System.Data;
 using System.Globalization;
 
 namespace SimpleETL.Services;
-internal class DatabaseService
+internal class DatabaseService(string connectionString)
 {
-    private readonly string _connectionString;
     private const string tableName = "cab_data";
-    public DatabaseService(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
 
-    public bool IsServerConnected()
+    public async Task<bool> IsServerConnectedAsync(CancellationToken cancellationToken = default)
     {
-        using var sqlConnection = new SqlConnection(_connectionString);
+        using var sqlConnection = new SqlConnection(connectionString);
         try
         {
-            sqlConnection.Open();
+            await sqlConnection.OpenAsync(cancellationToken);
             return true;
         }
         catch (SqlException)
@@ -26,10 +21,10 @@ internal class DatabaseService
             return false;
         }
     }
-    // public Task WriteToServerAsync(DataTable table, CancellationToken cancellationToken)
-    public int InsertData(IEnumerable<DataEntryPrototype> data)
+
+    public async Task<int> InsertDataAsync(IEnumerable<DataEntryPrototype> data, CancellationToken cancellationToken = default)
     {
-        using var sqlConnection = new SqlConnection(_connectionString);
+        using var sqlConnection = new SqlConnection(connectionString);
         sqlConnection.Open();
 
         using var bulkCopy = new SqlBulkCopy(sqlConnection)
@@ -51,7 +46,7 @@ internal class DatabaseService
 
         try
         {
-            bulkCopy.WriteToServer(dataTable);
+            await bulkCopy.WriteToServerAsync(dataTable, cancellationToken);
         }
         catch (InvalidOperationException exception)
         {

@@ -401,4 +401,5 @@ FodyWeavers.xsd
 
 # Secure files
 sample-*-data.csv
+*_records.csv
 *-assessment.md
