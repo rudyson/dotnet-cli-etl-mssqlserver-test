@@ -398,3 +398,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Secure files
+sample-*-data.csv
+*-assessment.md
