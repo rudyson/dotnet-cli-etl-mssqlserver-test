@@ -43,10 +43,10 @@ Future potential input data size: `50GB`
         "OutputDatabase": "Data Source=.\\SQLEXPRESS;Initial Catalog=simpleetl_cab;Integrated Security=True;Encrypt=True;Trust Server Certificate=True"
     },
     "Csv": {
-        "WorkingDirectory": "./../../../",
-        "InputDataFilename": "sample-cab-data.csv",
-        "CorruptedRecordsFilename": "invalid_records.csv",
-        "DuplicateRecordsFilename": "duplicate_records.csv"
+        "WorkingDirectory": "./",
+        "InputDataFilename": "input.csv",
+        "CorruptedRecordsFilename": "corrupted.csv",
+        "DuplicateRecordsFilename": "duplicates.csv"
     }
 }
 ```
