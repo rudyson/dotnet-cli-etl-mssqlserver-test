@@ -1,13 +1,20 @@
 ﻿using Microsoft.Data.SqlClient;
 using SimpleETL.Configuration.CsvHelperConfiguration.Models;
+using SimpleETL.Services.Interfaces;
 using System.Data;
 using System.Globalization;
 
 namespace SimpleETL.Services;
-internal class DatabaseService(string connectionString)
+
+internal class DatabaseService(string connectionString) : IDatabaseService<DataEntryPrototype>
 {
     private const string tableName = "cab_data";
 
+    /// <summary>
+    /// Ensures connection to the database can be established
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     public async Task<bool> IsServerConnectedAsync(CancellationToken cancellationToken = default)
     {
         using var sqlConnection = new SqlConnection(connectionString);
@@ -22,6 +29,12 @@ internal class DatabaseService(string connectionString)
         }
     }
 
+    /// <summary>
+    /// Inserts bulk data
+    /// </summary>
+    /// <param name="data"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>Rows were inserted</returns>
     public async Task<int> InsertDataAsync(IEnumerable<DataEntryPrototype> data, CancellationToken cancellationToken = default)
     {
         using var sqlConnection = new SqlConnection(connectionString);
@@ -44,16 +57,17 @@ internal class DatabaseService(string connectionString)
             InsertRow(dataTable.Rows, entry);
         }
 
+        // Bulk insert using SqlBulkCopy
         try
         {
             await bulkCopy.WriteToServerAsync(dataTable, cancellationToken);
+            return dataTable.Rows.Count;
         }
         catch (InvalidOperationException exception)
         {
+            Console.WriteLine(exception.Message);
             return -1;
         }
-
-        return dataTable.Rows.Count;
     }
 
     private static void SetupColumnMappings(SqlBulkCopyColumnMappingCollection sqlBulkCopyColumnMappingCollection)

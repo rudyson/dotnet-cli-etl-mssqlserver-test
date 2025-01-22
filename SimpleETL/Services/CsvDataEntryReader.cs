@@ -4,10 +4,11 @@ using SimpleETL.Configuration.Application;
 using SimpleETL.Configuration.CsvHelperConfiguration.Extensions;
 using SimpleETL.Configuration.CsvHelperConfiguration.Maps;
 using SimpleETL.Configuration.CsvHelperConfiguration.Models;
+using SimpleETL.Services.Interfaces;
 using System.Globalization;
 
 namespace SimpleETL.Services;
-internal class CsvDataEntryReader : IDisposable // IEnumerable<DataEntryPrototype>
+internal class CsvDataEntryReader : ICsvDataReader<DataEntryPrototype>, IDisposable
 {
     private readonly CsvConfiguration _configuration;
     private readonly CsvOptions _options;
@@ -110,11 +111,15 @@ internal class CsvDataEntryReader : IDisposable // IEnumerable<DataEntryPrototyp
             }
 
             // Normalization of entries according to requirements
-            record.NormalizeDate(_estTimeZoneInfo);
-            record.NormalizeFlags();
-
+            TransformRecord(record);
             yield return record;
         }
+    }
+
+    private void TransformRecord(DataEntryPrototype record)
+    {
+        record.NormalizeDate(_estTimeZoneInfo);
+        record.NormalizeFlags();
     }
 
     ~CsvDataEntryReader()
